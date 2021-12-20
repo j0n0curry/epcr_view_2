@@ -8,6 +8,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from urllib.error import URLError
 import math
 import requests
 import glob
@@ -16,6 +17,7 @@ import numpy as np
 from pandas import datetime
 import warnings
 warnings.filterwarnings('ignore')
+from typing import Callable
 pd.options.display.float_format = '{:,.0f}'.format
 from pathlib import Path
 
@@ -314,26 +316,29 @@ stats_ROX = ROXCV(comp)
 
 
 
+def stat_FAM(comp):
+    stats_FAM = comp.groupby(['Run_ID','Result'])['FAM_RFU'].agg(['count', 'mean','std','min',Q25, Q50, Q75, 'max'])
+    #print(stats_FAM)
+    print('-'*30)
 
-stats_FAM = comp.groupby(['Run_ID','Result'])['FAM_RFU'].agg(['count', 'mean','std','min',Q25, Q50, Q75, 'max'])
-#print(stats_FAM)
-print('-'*30)
+    CI95_hi_FAM = []
+    CI95_lo_FAM = []
+    CV_ruFAM_RFU = []
 
-CI95_hi_FAM = []
-CI95_lo_FAM = []
-CV_ruFAM_RFU = []
+    for i in stats_FAM.index:
+        c,m,s,t,u,q1,q2,v = round(stats_FAM.loc[i])
+        CI95_hi_FAM.append(m + 1.95*s/math.sqrt(c))
+        CI95_lo_FAM.append(m - 1.95*s/math.sqrt(c))
+        #CV_ruFAM_RFU.append(100 -(s/m*100))
 
-for i in stats_FAM.index:
-    c,m,s,t,u,q1,q2,v = round(stats_FAM.loc[i])
-    CI95_hi_FAM.append(m + 1.95*s/math.sqrt(c))
-    CI95_lo_FAM.append(m - 1.95*s/math.sqrt(c))
-    #CV_ruFAM_RFU.append(100 -(s/m*100))
+    stats_FAM['ci95_lo_FAM'] = CI95_lo_FAM
+    stats_FAM['ci95_hi_FAM'] = CI95_hi_FAM
+    #stats_FAM['CV%_FAM'] = CV_ruFAM_RFU
 
-stats_FAM['ci95_lo_FAM'] = CI95_lo_FAM
-stats_FAM['ci95_hi_FAM'] = CI95_hi_FAM
-#stats_FAM['CV%_FAM'] = CV_ruFAM_RFU
+    return(stats_FAM)
 
-print(stats_FAM)
+
+stats_FAM = stat_FAM(comp)
 
 
 print('-'*30)
