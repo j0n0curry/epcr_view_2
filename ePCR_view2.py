@@ -24,6 +24,7 @@ from pathlib import Path
 
 st.set_page_config(layout="wide")
 
+st.button("Run")
 
 #Written Josh Mehl - Jonathan Curry 2021
 
@@ -248,7 +249,6 @@ st.text(path)
 files = glob.glob(str(path)+ '\*.csv')
 st.text(files)
 arrays = ArayaManager(files)
-print(files)
 
 
     
