@@ -8,7 +8,6 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from urllib.error import URLError
 import math
 import requests
 import glob
@@ -24,16 +23,6 @@ from pathlib import Path
 
 
 st.set_page_config(layout="wide")
-
-
-path = st.text_input('Please copy and paste the full path to the Araya Files you would like to view: ')
-path = Path(path)
-
-
-#(Convert dataframes in to metric ePCR - use comp.head() to gather headers for df. zscores are calculated for the files imported - not useful if data is non-linear.Order is time /date ordered but can be file name ordered) 
-
-
-files = glob.glob(str(path)+'\*.csv')
 
 
 #Written Josh Mehl - Jonathan Curry 2021
@@ -202,15 +191,12 @@ class ArayaManager(WellDataManager):
         self.run_name = file_name[-(self.split_char_loc+4):-4]
         
         
-        
-#CV_type = (input("CV is either whole QC plate type 'CV' for linearity type'CV_linear' or for 8 channel test type 'CV_8c': "))
-#save_figures_as =(input("save report files - please use new name each time: "))
 
 
 
 
 #Class instantiation - class contains self variables which passed within. 
-arrays = ArayaManager(files)
+
 
 
 
@@ -250,6 +236,19 @@ def araya_date_time(final):
     final['Week'] = final['date_time'].dt.week
 
 
+path = st.text_input('Please copy and paste the full path to the Araya Files you would like to view: ')
+path = Path(path)
+
+
+st.text(path)
+
+#(Convert dataframes in to metric ePCR - use comp.head() to gather headers for df. zscores are calculated for the files imported - not useful if data is non-linear.Order is time /date ordered but can be file name ordered) 
+
+
+files = glob.glob(str(path)+ '\*.csv')
+st.text(files)
+arrays = ArayaManager(files)
+print(files)
 
 
     
@@ -316,29 +315,26 @@ stats_ROX = ROXCV(comp)
 
 
 
-def stat_FAM(comp):
-    stats_FAM = comp.groupby(['Run_ID','Result'])['FAM_RFU'].agg(['count', 'mean','std','min',Q25, Q50, Q75, 'max'])
-    #print(stats_FAM)
-    print('-'*30)
 
-    CI95_hi_FAM = []
-    CI95_lo_FAM = []
-    CV_ruFAM_RFU = []
+stats_FAM = comp.groupby(['Run_ID','Result'])['FAM_RFU'].agg(['count', 'mean','std','min',Q25, Q50, Q75, 'max'])
+#print(stats_FAM)
+print('-'*30)
 
-    for i in stats_FAM.index:
-        c,m,s,t,u,q1,q2,v = round(stats_FAM.loc[i])
-        CI95_hi_FAM.append(m + 1.95*s/math.sqrt(c))
-        CI95_lo_FAM.append(m - 1.95*s/math.sqrt(c))
-        #CV_ruFAM_RFU.append(100 -(s/m*100))
+CI95_hi_FAM = []
+CI95_lo_FAM = []
+CV_ruFAM_RFU = []
 
-    stats_FAM['ci95_lo_FAM'] = CI95_lo_FAM
-    stats_FAM['ci95_hi_FAM'] = CI95_hi_FAM
-    #stats_FAM['CV%_FAM'] = CV_ruFAM_RFU
+for i in stats_FAM.index:
+    c,m,s,t,u,q1,q2,v = round(stats_FAM.loc[i])
+    CI95_hi_FAM.append(m + 1.95*s/math.sqrt(c))
+    CI95_lo_FAM.append(m - 1.95*s/math.sqrt(c))
+    #CV_ruFAM_RFU.append(100 -(s/m*100))
 
-    return(stats_FAM)
+stats_FAM['ci95_lo_FAM'] = CI95_lo_FAM
+stats_FAM['ci95_hi_FAM'] = CI95_hi_FAM
+#stats_FAM['CV%_FAM'] = CV_ruFAM_RFU
 
-
-stats_FAM = stat_FAM(comp)
+print(stats_FAM)
 
 
 print('-'*30)
