@@ -238,6 +238,7 @@ def araya_date_time(final):
 
 
 path = st.text_input('Please copy and paste the full path to the Araya Files you would like to view: ')
+path = str(path)
 path = Path(path)
 
 
@@ -246,7 +247,7 @@ st.text(path)
 #(Convert dataframes in to metric ePCR - use comp.head() to gather headers for df. zscores are calculated for the files imported - not useful if data is non-linear.Order is time /date ordered but can be file name ordered) 
 
 
-files = glob.glob(str(path)+ '\*.csv')
+files = glob.glob(str(path) + '\*.csv')
 st.text(files)
 arrays = ArayaManager(files)
 
