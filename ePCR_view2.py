@@ -247,7 +247,7 @@ st.write('Please select a folder:')
 
 path_input_data = st.sidebar.text_input("Provide the name to the subfolder in which your csv files are "
                                             "stored.")
-if path_input_data:
+if path_input_data is not None:
     files = glob.glob(path_input_data + '/**/*.csv', recursive=True)
 
 
@@ -297,7 +297,7 @@ araya_date_time(comp)
 
 #files = st.file_uploader("Choose files for analysis", type="csv", accept_multiple_files=True)
 #st.text(files)
-#files = glob.glob(files +'\*.csv')
+#files = glob.glob(files +'/*.csv')
 
 
 
