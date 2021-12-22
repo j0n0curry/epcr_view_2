@@ -248,7 +248,7 @@ st.write('Please select a folder:')
 path_input_data = st.sidebar.text_input("Provide the name to the subfolder in which your csv files are "
                                             "stored.")
 if path_input_data is not None:
-    files = glob.glob(path_input_data + '/**/*.csv', recursive=True)
+    files = st.write(glob.glob(path_input_data + '/**/*.csv', recursive=True))
 
 
 arrays = ArayaManager(files)
