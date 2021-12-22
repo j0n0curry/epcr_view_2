@@ -9,22 +9,25 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import math
-import requests
 import glob
 import os
 import numpy as np
 from pandas import datetime
-import warnings
-warnings.filterwarnings('ignore')
-from typing import Callable
-pd.options.display.float_format = '{:,.0f}'.format
 from pathlib import Path
+import io
+
 
 
 
 st.set_page_config(layout="wide")
 
-st.button("Run")
+
+
+
+
+
+
+
 
 #Written Josh Mehl - Jonathan Curry 2021
 
@@ -237,25 +240,84 @@ def araya_date_time(final):
     final['Week'] = final['date_time'].dt.week
 
 
-path = st.text_input('Please copy and paste the full path to the Araya Files you would like to view: ')
-path = str(path)
-path = Path(path)
+
+# Folder picker button
+st.title('Folder Picker')
+st.write('Please select a folder:')
+
+path_input_data = st.sidebar.text_input("Provide the name to the subfolder in which your csv files are "
+                                            "stored.")
+if path_input_data:
+    files = glob.glob(path_input_data + '/**/*.csv', recursive=True)
 
 
-st.text(path)
+arrays = ArayaManager(files)
+comp = arrays.concatenate_dataframes()
+#path = st.text_input('Please copy and paste the full path to the Araya Files you would like to view: ')
+#path = str(path)
+
+
+
+#multiple_files = st.file_uploader('CSV',type="csv", accept_multiple_files=True)
+#for file in multiple_files:
+ #   bytes_data = file.read()
+  #  return(bytes_data)
+
+#for file in multiple_files:
+ #   file_container = st.expander(
+  #      f"File name: {file.name} ({file.size})"
+   # )
+    #data = io.BytesIO(file.getbuffer())
+    #arrays = ArayaManager(files)
+    #file.seek(0)
+    #comp = arrays.concatenate_dataframes()
+    #comp
+
+#uploaded_files = st.file_uploader("Upload CSV", type="csv", accept_multiple_files=True)
+#st.text(uploaded_files)
+#if uploaded_files:
+ #   for file in uploaded_files:
+
+#        file.seek(0)
+ #   data = io.BytesIO(file.getbuffer())
+  #  
+   # 
+    #st.text(arrays)
+
+
+
+
+
+
+
+normalise_values(comp)
+araya_date_time(comp)
+
+
+
+#files = st.file_uploader("Choose files for analysis", type="csv", accept_multiple_files=True)
+#st.text(files)
+#files = glob.glob(files +'\*.csv')
+
+
+
+
+
+
+
+
+
+#st.text(path)
 
 #(Convert dataframes in to metric ePCR - use comp.head() to gather headers for df. zscores are calculated for the files imported - not useful if data is non-linear.Order is time /date ordered but can be file name ordered) 
 
 
-files = glob.glob(str(path) + '\*.csv')
 st.text(files)
-arrays = ArayaManager(files)
+
 
 
     
-comp = arrays.concatenate_dataframes()
-normalise_values(comp)
-araya_date_time(comp)
+
 
 
 conditions = [
